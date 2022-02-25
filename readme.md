@@ -26,7 +26,7 @@ Settings are passed as [query strings](https://en.wikipedia.org/wiki/Query_strin
 | `cur-factor`  | 0.5     | Factor applied to the current video stream frame            |
 | `ref-factor`  | -0.5    | Factor applied to the reference snapshot video stream frame |
 
-For cameras which to not support the resolution of 1280x720 it is recommended to change `width` and `height`.
+For cameras which do not support the resolution of 1280x720 it is recommended to change the parameters `width` and `height`.
 
 Color values are in the range of 0-1. Computation of a pixel is done in each color channel with the following formula:
 
