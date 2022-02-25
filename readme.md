@@ -1,6 +1,6 @@
 # Billiards-Undo
 
-Simple html app wich displays overlays or differences of a video stream and a reference snapshot previously taken with a camera.
+Simple html app wich displays overlays or differences of a video stream and a reference snapshot taken with a camera.
 With an usb camera placed over the billiard table and a laptop next to it, this app aids with the placement of the balls to a previous position, in case you want to redo the previous shot.
 
 Follow the online [link](https://frederik-glasmachers.github.io/billiards-undo/billiards-undo.html?offset=0.5&curFactor=0.5&refFactor=-0.5) or clone or download the repository and open the file billiards-undo.html with your favourite browser. Now move something in front of the camera. If you do not see anything try to adjust the camera resolution [settings](#settings).
