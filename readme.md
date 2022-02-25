@@ -7,8 +7,6 @@ Follow the online [link](https://frederik-glasmachers.github.io/billiards-undo/b
 
 ## Taking a reference snapshot
 
-This is done automatically on startup.
-
 When the app is started the snapshot reference frame is updated (a snapshot is taken) automatically.
 Additional updates can be triggered by pressing any key or the left mouse button.
 For this reason it is recommended to put a wireless mouse in your pocket.
