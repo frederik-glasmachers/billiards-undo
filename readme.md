@@ -24,7 +24,7 @@ Settings are passed as [query strings](https://en.wikipedia.org/wiki/Query_strin
 | `brightness` | 2       | Brightness of the camera video stream requested             |
 | `offset`     | 0.5     | Offset to each color                                        |
 | `curFactor`  | 0.5     | Factor applied to the current video stream frame            |
-| `refFactor`  | -0.5    | Factor applied to the reference snapshot video stream frame |
+| `refFactor`  | -0.5    | Factor applied to the reference snapshot frame              |
 
 For cameras which do not support the resolution of 1280x720 it is recommended to change the parameters `width` and `height`.
 
