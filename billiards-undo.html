@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Billiard overlay</title>
+    <style>
+      body {
+          margin: 0;
+      }
+      canvas {
+          display: block;
+          width: 100vw;
+          height: 100vh;
+      }
+      #video {
+        display: none;
+      }
+    </style>
+  </head>
+  
+  <body>
+    <video id="video" playsinline></video>
+    <canvas id="canvas"></canvas>
+  </body>
+  
+  <!-- The vertex shader of the opengl program -->
+  <script id="vs" type="notjs">
+    attribute vec4 position;
+    varying vec2 coord;
+    
+    void main() {
+      gl_Position = position;
+      coord = (position.xy + vec2(1, 1)) * 0.5;
+      coord.y = 1.0 - coord.y;
+    }
+  </script>
+  <!-- The fragment shader of the opengl program -->
+  <script id="fs" type="notjs">
+    precision mediump float;
+
+    uniform sampler2D curTex;
+    uniform sampler2D refTex;
+    varying vec2 coord;
+    uniform float curFactor; 
+    uniform float refFactor;
+    uniform float offset;
+
+    void main() {
+      gl_FragColor = vec4(
+        vec3(offset, offset, offset) +
+        curFactor * texture2D(curTex, coord).rgb +
+        refFactor * texture2D(refTex, coord).rgb,
+        1.0
+      );
+    }
+  </script>
+
+  <!-- In order to simplify opengl/webgl programming this app uses the library twgl -->
+  <script src="./twgl-full.min.js"></script>
+
+  <!-- Main javascript code -->
+  <script>
+    // Wrap everything in an async main function in order to be able to use await
+    async function main() {
+      // Parse url parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const width = urlParams.get('width') ?? 1280;
+      const height = urlParams.get('height') ?? 720;
+      const brightness = urlParams.get('brightness') ?? 2;
+      const offset = urlParams.get('offset') ?? 0.5;
+      const curFactor = urlParams.get('curFactor') ?? 0.5;
+      const refFactor = urlParams.get('refFactor') ?? -0.5;
+
+      // Setup gl from context
+      const gl = document.querySelector("#canvas").getContext("webgl");
+      // Create program
+      const programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
+      // Create vertex buffer
+      const bufferInfo = twgl.createBufferInfoFromArrays(gl, {
+        position: [
+          -1, -1, 0,
+          1, -1, 0,
+          -1,  1, 0,
+          -1,  1, 0,
+          1, -1, 0,
+          1,  1, 0
+        ],
+      });
+
+      // Wait until the user accepted access to the webcam and setup the video element with the stream
+      function startWebcamVideo(video) {
+        return new Promise((resolve, reject) => {
+          const mediaConstraints = { audio: false, video: { 
+              width: width,
+              height: height,
+              brightness: {ideal: brightness}
+            }
+          };
+          navigator.mediaDevices.getUserMedia(
+            mediaConstraints).then(mediaStream => {
+              video.srcObject = mediaStream;
+              video.setAttribute('playsinline', true);
+              video.onloadedmetadata = (e) => {
+                video.play();
+                resolve(video);
+              }
+            }).catch(err => {
+              reject(err);
+            });
+          }
+        );
+      }
+      const video = await startWebcamVideo(document.querySelector('video'));
+
+      // Create textures from the current frame of the video of the camera for holding current and reference images.
+      function createTex() {
+        // Create new texture handle
+        const texture = gl.createTexture();
+        // Bind the texture
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        // Upload the current video frame
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video);
+        // Setup texture wrapping and filter parameters
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        return texture;
+      }
+      const curTex = createTex();
+      const refTex = createTex();
+
+      // Updates the texture with the current frame of the video of the camera
+      function updateTex(tex) {
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, gl.RGBA, gl.UNSIGNED_BYTE, video);
+      }
+
+      // Setup click and keydown events to update the reference texture image
+      document.onclick = () => {
+        updateTex(refTex);
+      };
+      document.onkeydown = () => {
+        updateTex(refTex);
+      };
+
+      // Render function
+      function render(time) {
+        // Resize the canvas to display size
+        twgl.resizeCanvasToDisplaySize(gl.canvas);
+
+        // Update the viewport
+        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+        // Update the current texture to hold the current frame of the video of the camera.
+        updateTex(curTex);
+
+        // Draw the textures with the program
+        gl.useProgram(programInfo.program);
+        twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+        twgl.setUniforms(programInfo, {
+          curTex: curTex,
+          refTex: refTex,
+          curFactor: curFactor,
+          refFactor: refFactor,
+          offset: offset,
+        });
+        twgl.drawBufferInfo(gl, bufferInfo);
+
+        // Request next rendering
+        requestAnimationFrame(render);
+      }
+      // Request first rendering
+      requestAnimationFrame(render);
+    }
+    main();
+  </script>
+
+</html>
