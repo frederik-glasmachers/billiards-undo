@@ -11,20 +11,23 @@ When the app is started the snapshot reference frame is updated (a snapshot is t
 Additional updates can be triggered by pressing any key or the left mouse button.
 For this reason it is recommended to put a wireless mouse in your pocket.
 
+Alternatively the speach command "Terminator" can be used. But this requires passing an access key of porcupine.
+
 ## Settings
 
 Settings are passed as [query strings](https://en.wikipedia.org/wiki/Query_string) like this:
 
     https://frederik-glasmachers.github.io/billiards-undo/billiards-undo.html?width=1280&height=720&brightness=2&offset=0.5&curFactor=0.5&refFactor=-0.5
 
-| Id           | Default | Description                                                 |
-| ------------ | ------- | ----------------------------------------------------------- |
-| `width`      | 1280    | Width of the camera video stream requested                  |
-| `height`     | 720     | Height of the camera video stream requested                 |
-| `brightness` | 2       | Brightness of the camera video stream requested             |
-| `offset`     | 0.5     | Offset to each color                                        |
-| `curFactor`  | 0.5     | Factor applied to the current video stream frame            |
-| `refFactor`  | -0.5    | Factor applied to the reference snapshot frame              |
+| Id                   | Default | Description                                                      |
+| -------------------- | ------- | ---------------------------------------------------------------- |
+| `width`              | 1280    | Width of the camera video stream requested                       |
+| `height`             | 720     | Height of the camera video stream requested                      |
+| `brightness`         | 2       | Brightness of the camera video stream requested                  |
+| `offset`             | 0.5     | Offset to each color                                             |
+| `curFactor`          | 0.5     | Factor applied to the current video stream frame                 |
+| `refFactor`          | -0.5    | Factor applied to the reference snapshot frame                   |
+| `porcupineAccessKey` |         | The access key used by porcupine, if none, porcupine is not used |
 
 For cameras which do not support the resolution of 1280x720 it is recommended to change the parameters `width` and `height`.
 
